@@ -1,0 +1,43 @@
+kind: Model
+apiVersion: v1alpha4
+metadata:
+  displayName: UDM Rasterise Coverage 
+  type: Modelling
+  name: udm-rasterise-coverage
+  summary: Tool for creating raster coverage layers from polygons
+  description: >
+    Creates an ASCII raster with coverage of polygons inside 100m grid cells.
+    https://github.com/openclim/udm-rasterise-coverage
+spec:
+  inputs:
+    env:
+      - name: EXTENT
+        title: Extent
+        type: string
+        desc: Must be formatted `<xmin>,<ymin>,<xmax>,<ymax>`. If not provided then the input data extent will be used.
+        default: None
+
+      - name: LAYER_NAME
+        title: Layer name
+        type: string
+        desc: Name of rasterised coverage layer which is appended with _coverage_100m.asc by the model. 
+        default: None
+
+    dataslots:
+      - name: Polygons
+        description: GeoPackage (.gpkg) or Shapefile (.shp) dataset containing polygons
+        default:
+          - uid: f4e58421-5a13-4db6-b15f-d404f7b133cf
+            versionUid: f72ac585-87b5-4c3c-b61b-81e16f6a70cc
+        path: inputs/polygons
+        required: true
+
+  outputs:
+    datasets:
+      - name: outputs/LAYER_NAME_coverage_100m.asc
+        type: ASCII
+        desc: Coverage of polyons (m2)
+
+      - name: outputs/udm-rasterise-coverage.log
+        type: Text
+        desc: Log output
