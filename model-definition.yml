@@ -12,13 +12,13 @@ spec:
   inputs:
     env:
       - name: EXTENT
-        title: Extent
+        title: extent
         type: string
         desc: Must be formatted `<xmin>,<ymin>,<xmax>,<ymax>`. If not provided then the input data extent will be used.
         default: None
 
-      - name: LAYER_NAME
-        title: Layer name
+      - name: LAYER
+        title: layer
         type: string
         desc: Name of rasterised coverage layer which is appended with _coverage_100m.asc by the model. 
         default: None
@@ -34,7 +34,7 @@ spec:
 
   outputs:
     datasets:
-      - name: outputs/LAYER_NAME_coverage_100m.asc
+      - name: outputs/layer_coverage_100m.asc
         type: ASCII
         desc: Coverage of polyons (m2)
 

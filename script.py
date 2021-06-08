@@ -2,20 +2,26 @@ import subprocess
 from pathlib import Path
 import os
 import logging
-import variables as v
+#import variables as v
 
 #------------------------------------------------------------------------------------------------------------------------------
 #rasterise_1m
 
 #configure directory/subdirectories
-current_dir = str(Path.cwd())
+#current_dir = str(Path.cwd())
 #print(current_dir)
-inputs = Path(current_dir + '/data/inputs/')
+#inputs = Path(current_dir + '/data/inputs/')
+inputs = Path("/data/inputs/")
 #print(inputs)
-temp = Path(current_dir + '/data/temp/')
+
+#temp = Path(current_dir + '/data/temp/')
+temp = Path("/data/temp/")
 #print(temp)
-outputs = Path(current_dir + '/data/outputs/')
+
+#outputs = Path(current_dir + '/data/outputs/')
+outputs = Path("/data/outputs/")
 #print(outputs)
+
 temp.mkdir(exist_ok=True)
 outputs.mkdir(exist_ok=True)
 
@@ -28,15 +34,17 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 #get input polygons
-input_files = []
+input_polygons = []
 for ext in ['shp', 'gpkg']:
-    input_files.extend(list(inputs.glob(f"*/*.{ext}")))
+    input_polygons.extend(list(inputs.glob(f"*/*.{ext}")))
 
-assert len(input_files) > 0, 'No input files found'
-selected_file = input_files[0]
+assert len(input_polygons) > 0, 'No input polygons found'
+selected_polygons = input_polygons[0]
 
 #get extent 'xmin,ymin,xmax,ymax'
-extent = v.get_extent()
+#extent = '459000,202000,501000,244000'
+extent = os.getenv('EXTENT')
+
 if extent == 'None' or extent is None:
     extent = []
 else:
@@ -45,7 +53,7 @@ else:
 #------------------------------------------------------------------------------------------------------------------------------
 #rasterise_1m
 
-logger.info(f'Rasterizing {selected_file}')
+logger.info(f'Rasterizing {selected_polygons}')
 
 subprocess.call(['gdal_rasterize',
                  '-burn', '1',		#fixed value to burn for all objects
@@ -54,7 +62,7 @@ subprocess.call(['gdal_rasterize',
                  '-ot', 'UInt16',	#output data type
                  '-at',  			#enable all-touched rasterisation
                  *extent,			#'-te' <xmin> <ymin> <xmax> <ymax> 
-                 selected_file, temp / 'rasterise_1m.tif'])	#src_datasource, dst_filename
+                 selected_polygons, temp / 'rasterise_1m.tif'])	#src_datasource, dst_filename
 
 logger.info('Rasterizing completed')
 
@@ -77,7 +85,10 @@ logger.info('Sum resampling completed')
 #translate
 
 #get layer name
-layer_name = v.get_layer_name() + '_coverage_100m.asc'
+#layer = 'test_region_coverage_100m.asc'
+layer = os.getenv('LAYER') + '_coverage_100m.asc'
+
+
 
 logger.info('Translating raster')
 
@@ -85,7 +96,7 @@ subprocess.call(['gdal_translate',
                  '-tr', '100', '100',	#target resolution <xres> <yres>                
                  '-ot', 'UInt16',		#output data type    
                  '-a_nodata', '0',		#set nodata value             
-                 temp / 'sum_resample_100m.tif', outputs / layer_name])	#srcfile, dstfile
+                 temp / 'sum_resample_100m.tif', outputs / layer])	#srcfile, dstfile
 
 logger.info('Translating completed')
 
